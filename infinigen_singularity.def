@@ -1,0 +1,48 @@
+BootStrap: library
+From: ubuntu:22.04
+
+%environment
+    export LC_ALL=C
+
+%post
+    # Set noninteractive installation
+    export DEBIAN_FRONTEND=noninteractive
+
+    # Update and install system dependencies
+    apt-get update && apt-get install -y \
+        wget \
+        cmake \
+        g++ \
+        libgles2-mesa-dev \
+        libglew-dev \
+        libglfw3-dev \
+        libglm-dev \
+        zlib1g-dev \
+        && apt-get clean
+
+    # Install mamba
+    wget -O Miniforge3.sh "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh"
+    bash Miniforge3.sh -b -p "${HOME}/conda"
+    . "${HOME}/conda/etc/profile.d/conda.sh"
+    . "${HOME}/conda/etc/profile.d/mamba.sh"
+
+    # Activate the base environment
+    mamba activate
+
+    # Clone infinigen
+    git pull https://github.com/m-and-m-lab/infinigen.git
+    cd infinigen
+
+    # Set up environment
+    mamba env create -f environment.yml
+    mamba activate infinigen
+    export C_INCLUDE_PATH=$CONDA_PREFIX/include:$C_INCLUDE_PATH
+    export CPLUS_INCLUDE_PATH=$CONDA_PREFIX/include:$CPLUS_INCLUDE_PATH
+    export LIBRARY_PATH=$CONDA_PREFIX/lib:$LIBRARY_PATH
+    export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH
+
+    # Install infinigen
+    INFINIGEN_MINIMAL_INSTALL=True pip install -e .
+
+%runscript
+    ./generate_apartment.sh
