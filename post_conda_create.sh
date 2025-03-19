@@ -1,0 +1,8 @@
+# Needed env variables for conda
+export C_INCLUDE_PATH=$CONDA_PREFIX/include:$C_INCLUDE_PATH
+export CPLUS_INCLUDE_PATH=$CONDA_PREFIX/include:$CPLUS_INCLUDE_PATH
+export LIBRARY_PATH=$CONDA_PREFIX/lib:$LIBRARY_PATH
+export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH
+
+# Install infinigen
+INFINIGEN_MINIMAL_INSTALL=True pip install -e .
