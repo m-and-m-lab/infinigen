@@ -18,6 +18,7 @@ From: ubuntu:22.04
         libglfw3-dev \
         libglm-dev \
         zlib1g-dev \
+        git \
         && apt-get clean
 
     # Install mamba
