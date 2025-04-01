@@ -145,4 +145,5 @@ make docker-build-cuda
 2. Create the Singularity container:
 ```bash
 singularity build infinigen_docker.sif docker-daemon://infinigen_docker_img:latest
+# TODO (skwirskj): This is not working at the moment and I keep getting an error thrown that /bin/bash is not found when running the docker container
 ```
