@@ -3,6 +3,11 @@ From: continuumio/miniconda3
 
 %environment
     export LC_ALL=C
+    export CONDA_PREFIX=/opt/conda/envs/infinigen
+    export C_INCLUDE_PATH=$CONDA_PREFIX/include:$C_INCLUDE_PATH
+    export CPLUS_INCLUDE_PATH=$CONDA_PREFIX/include:$CPLUS_INCLUDE_PATH
+    export LIBRARY_PATH=$CONDA_PREFIX/lib:$LIBRARY_PATH
+    export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH
 
 %files
     infinigen
@@ -23,10 +28,13 @@ From: continuumio/miniconda3
         zlib1g-dev \
         git \
         libxi6 \
+        libxi-dev \
         libxrender-dev \
         libgl-dev \
         libxxf86vm-dev \
         libxkbcommon \
+        libgconf-2-4 \
+        libxkbcommon-x11-0 \
         && apt-get clean
 
     . /opt/conda/etc/profile.d/conda.sh
@@ -38,10 +46,6 @@ From: continuumio/miniconda3
     # Set up environment
     conda env create -f environment.yml
     conda activate /opt/conda/envs/infinigen
-    export C_INCLUDE_PATH=$CONDA_PREFIX/include:$C_INCLUDE_PATH
-    export CPLUS_INCLUDE_PATH=$CONDA_PREFIX/include:$CPLUS_INCLUDE_PATH
-    export LIBRARY_PATH=$CONDA_PREFIX/lib:$LIBRARY_PATH
-    export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH
 
     # Install infinigen
     echo "Installing infinigen pip packages..."
