@@ -22,6 +22,7 @@ From: continuumio/miniconda3
         cmake \
         g++ \
         libgles2-mesa-dev \
+        libgl1-mesa-glx \
         libglew-dev \
         libglfw3-dev \
         libglm-dev \
@@ -32,15 +33,17 @@ From: continuumio/miniconda3
         libxrender-dev \
         libgl-dev \
         libxxf86vm-dev \
-        libxkbcommon \
+        libxkbcommon-dev \
         libgconf-2-4 \
         libxkbcommon-x11-0 \
+        build-essential \
+        zip \
         && apt-get clean
 
     . /opt/conda/etc/profile.d/conda.sh
     conda activate base
 
-    # Cd to infinigen
+    # cd to infinigen
     cd /infinigen
 
     # Set up environment
@@ -49,7 +52,7 @@ From: continuumio/miniconda3
 
     # Install infinigen
     echo "Installing infinigen pip packages..."
-    INFINIGEN_MINIMAL_INSTALL=True pip install -e .
+    pip install -e ".[dev]"
 
 %runscript
     . /opt/conda/etc/profile.d/conda.sh
