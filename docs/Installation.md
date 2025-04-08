@@ -143,5 +143,6 @@ sudo singularity build infinigen.sif infinigen/infinigen_singularity.def
 
 You can then run the `generate_apartment.sh` script by running:
 ```bash
-singularity run --bind /output/directory infinigen.sif
+mkdir -p output/directory/omniverse
+singularity run --bind /output/directory:/singularity/directory infinigen.sif
 ```
