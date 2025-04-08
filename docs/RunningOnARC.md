@@ -20,12 +20,6 @@ Next, in the folder where your `.sif` file is located on ARC, add a file to put 
 #SBATCH --mem=24G
 #SBATCH --gpu_cmode=shared
 
-
-# transfer files to /tmpssd
-#cd /home/bpatil/projects/vln_diffusion/
-#./transfer_to_tmp.sh
-
-
 # Load the singularity module
 module load singularity
 
@@ -34,9 +28,9 @@ cd /scratch/bucherb_root/bucherb0/skwirskj/
 singularity run --bind /scratch/bucherb_root/bucherb0/skwirskj/infinigen_outputs/:/infinigen/infinigen_outputs/ --nv infinigen_singularity.sif
 ```
 
-The first path in the `bind` needs to point to a folder that you have already created on ARC, and the secon one, `/infinigen/infinigen_outputs/`, needs to remain the same unless you change the [generate_apartments.sh](../generate_apartment.sh) script.
+The first path in the `bind` needs to point to a folder that you have already created on ARC, and the second one, `/infinigen/infinigen_outputs/`, needs to remain the same unless you change the [generate_apartments.sh](../generate_apartment.sh) script.
 
-Then, make a directory called `omniverse` inside of your outpus folder.
+Then, make a directory called `omniverse` inside of your outputs folder.
 ```bash
 cd infinigen_outputs
 mkdir omniverse
