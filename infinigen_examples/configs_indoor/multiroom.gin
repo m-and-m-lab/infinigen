@@ -1,2 +1,4 @@
 BlueprintSolidifier.enable_open=False
 restrict_solving.solve_max_rooms=3
+compose_indoors.lights_off_chance=0.0
+compose_indoors.nature_backdrop_enabled = True
