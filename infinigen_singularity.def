@@ -1,8 +1,16 @@
-BootStrap: library
-From: ubuntu:22.04
+BootStrap: docker
+From: continuumio/miniconda3
 
 %environment
     export LC_ALL=C
+    export CONDA_PREFIX=/opt/conda/envs/infinigen
+    export C_INCLUDE_PATH=$CONDA_PREFIX/include:$C_INCLUDE_PATH
+    export CPLUS_INCLUDE_PATH=$CONDA_PREFIX/include:$CPLUS_INCLUDE_PATH
+    export LIBRARY_PATH=$CONDA_PREFIX/lib:$LIBRARY_PATH
+    export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH
+
+%files
+    infinigen
 
 %post
     # Set noninteractive installation
@@ -14,36 +22,40 @@ From: ubuntu:22.04
         cmake \
         g++ \
         libgles2-mesa-dev \
+        libgl1-mesa-glx \
         libglew-dev \
         libglfw3-dev \
         libglm-dev \
         zlib1g-dev \
         git \
+        libxi6 \
+        libxi-dev \
+        libxrender-dev \
+        libgl-dev \
+        libxxf86vm-dev \
+        libxkbcommon-dev \
+        libgconf-2-4 \
+        libxkbcommon-x11-0 \
+        build-essential \
+        zip \
         && apt-get clean
 
-    # Install mamba
-    wget -O Miniforge3.sh "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh"
-    bash Miniforge3.sh -b -p "${HOME}/conda"
-    . "${HOME}/conda/etc/profile.d/conda.sh"
-    . "${HOME}/conda/etc/profile.d/mamba.sh"
+    . /opt/conda/etc/profile.d/conda.sh
+    conda activate base
 
-    # Activate the base environment
-    mamba activate
-
-    # Clone infinigen
-    git pull https://github.com/m-and-m-lab/infinigen.git
-    cd infinigen
+    # cd to infinigen
+    cd /infinigen
 
     # Set up environment
-    mamba env create -f environment.yml
-    mamba activate infinigen
-    export C_INCLUDE_PATH=$CONDA_PREFIX/include:$C_INCLUDE_PATH
-    export CPLUS_INCLUDE_PATH=$CONDA_PREFIX/include:$CPLUS_INCLUDE_PATH
-    export LIBRARY_PATH=$CONDA_PREFIX/lib:$LIBRARY_PATH
-    export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH
+    conda env create -f environment.yml
+    conda activate /opt/conda/envs/infinigen
 
     # Install infinigen
-    INFINIGEN_MINIMAL_INSTALL=True pip install -e .
+    echo "Installing infinigen pip packages..."
+    pip install -e ".[dev]"
 
 %runscript
+    . /opt/conda/etc/profile.d/conda.sh
+    conda activate /opt/conda/envs/infinigen
+    cd /infinigen
     ./generate_apartment.sh
