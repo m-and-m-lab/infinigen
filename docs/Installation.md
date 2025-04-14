@@ -136,14 +136,13 @@ Use `exit` to exit the container and `docker exec -it infinigen bash` to re-ente
 Install [WSL2](https://infinigen.org/docs/installation/intro#setup-for-windows) and [Docker Desktop](https://www.docker.com/products/docker-desktop/), with "Use the WSL 2 based engine..." enabled in settings. Keep the Docker Desktop application open while running containers. Then follow instructions as above.
 
 ## Making a Singularity Container
-To generate a singularity container to run Infinigen in, specifically for HPC computing, we generate a Docker image and then build a Singulairty container.
-1. Make docker image:
+To generate a singularity container to run Infinigen in, specifically for HPC computing, do the following from one level outside of the infinigen root:
 ```bash
-make docker-build-cuda
+sudo singularity build infinigen.sif infinigen/infinigen_singularity.def
 ```
 
-2. Create the Singularity container:
+You can then run the `generate_apartment.sh` script by running:
 ```bash
-singularity build infinigen_docker.sif docker-daemon://infinigen_docker_img:latest
-# TODO (skwirskj): This is not working at the moment and I keep getting an error thrown that /bin/bash is not found when running the docker container
+mkdir -p output/directory/omniverse
+singularity run --bind /output/directory:/singularity/directory infinigen.sif
 ```
