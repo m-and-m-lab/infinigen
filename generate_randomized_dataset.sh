@@ -1,0 +1,1 @@
+python -m infinigen.datagen.manage_jobs --output_folder outputs/my_dataset --num_scenes 25 --pipeline_configs local_256GB.gin monocular.gin blender_gt.gin indoor_background_configs.gin --configs multiroom.gin --pipeline_overrides get_cmd.driver_script='infinigen_examples.generate_indoors' manage_datagen_jobs.num_concurrent=16
