@@ -1,4 +1,10 @@
-BlueprintSolidifier.enable_open=False
 restrict_solving.solve_max_rooms=3
 compose_indoors.lights_off_chance=0.0
-compose_indoors.nature_backdrop_enabled = True
+
+
+# Add in objects
+compose_indoors.solve_large_enabled = True
+compose_indoors.solve_medium_enabled = True
+compose_indoors.solve_small_enabled = True
+compose_indoors.floating_objs_enabled=True
+compose_indoors.num_floating=35
