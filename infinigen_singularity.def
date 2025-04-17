@@ -52,7 +52,7 @@ From: continuumio/miniconda3
 
     # Install infinigen
     echo "Installing infinigen pip packages..."
-    pip install -e ".[dev]"
+    pip install -e ".[dev,terrain,vis]"
 
 %runscript
     . /opt/conda/etc/profile.d/conda.sh
