@@ -17,41 +17,58 @@ import sys
 import imageio
 import numpy as np
 import pyrender
-
-# Import trimesh and pyrender for offscreen rendering
 import trimesh
-
-# Import USD API modules
 from pxr import Gf, Usd, UsdGeom
 
 
 def look_at(eye, target, up=np.array([0, 0, 1])):
     """
-    Compute a 4x4 camera pose matrix from a camera position (eye), target, and up-vector.
-    The matrix converts points from the camera coordinate system to world coordinates.
-    This implementation uses the standard convention where:
-      - The camera’s z-axis is (eye - target) (i.e. pointing backwards from the view direction)
-      - The camera’s x-axis is the normalized cross product of up and z-axis.
-      - The camera’s y-axis is the cross product of z-axis and x-axis.
+    Computes a 4x4 camera-to-world transformation matrix.
+    The camera is placed at 'eye', looks toward 'target', with 'up' defining the vertical direction.
+    This formulation sets the camera's local -z axis as the view direction.
     """
-    # Compute the forward (camera z) direction.
-    forward = eye - target
+    forward = target - eye
     forward /= np.linalg.norm(forward)
 
-    # Compute the right (camera x) direction.
-    right = np.cross(up, forward)
+    right = np.cross(forward, up)
     right /= np.linalg.norm(right)
 
-    # Compute the true up (camera y) direction.
-    true_up = np.cross(forward, right)
+    true_up = np.cross(right, forward)
 
-    # Build the 4x4 transformation matrix.
+    # Build rotation matrix with columns: right, true_up, and -forward
     mat = np.eye(4)
     mat[0, :3] = right
     mat[1, :3] = true_up
-    mat[2, :3] = forward
+    mat[2, :3] = -forward
     mat[:3, 3] = eye
     return mat
+
+
+def compute_camera_transform(mesh, fov=np.radians(60)):
+    """
+    Computes a camera-to-world transformation matrix that frames the mesh.
+    - Uses the mesh's oriented bounding box center.
+    - Uses the maximum dimension of the bounding box as the size.
+    - Computes a distance such that the object fits in the view,
+      using d = (max_extent/2) / tan(FOV/2).
+    - Positions the camera along the negative Y axis.
+    """
+    bbox = mesh.bounding_box_oriented
+    center = bbox.centroid
+    extents = bbox.extents
+    max_extent = np.max(extents)
+
+    # Compute the distance so that the full object fits in the field-of-view.
+    distance = (max_extent / 2.0) / np.tan(fov / 2.0)
+
+    # Position the camera.
+    # Here we place the camera along the negative Y axis.
+    eye = center + np.array([0, -distance, 0])
+
+    # Choose an up vector; many USD assets use Z as up.
+    up = np.array([0, 0, 1])
+
+    return look_at(eye, center, up)
 
 
 def export_prim_and_children(src_prim, dst_stage):
@@ -188,29 +205,27 @@ def load_obj_into_trimesh(obj_file):
     return mesh
 
 
-def render_mesh_offscreen(mesh, output_image, width=640, height=480):
+def render_mesh_offscreen(
+    mesh, output_image, width=640, height=480, fov=np.radians(60)
+):
+    """
+    Renders the provided mesh offscreen using pyrender.
+
+    The camera pose is computed programmatically to ensure the mesh fits the frame.
+    """
     # Create a pyrender mesh from the trimesh object.
     p_mesh = pyrender.Mesh.from_trimesh(mesh)
     scene = pyrender.Scene()
     scene.add(p_mesh)
 
-    # Calculate a camera pose so that the object fits in view.
-    bbox = mesh.bounding_box_oriented
-    center = bbox.centroid
-    extents = bbox.extents
-    max_extent = np.max(extents)
+    # Compute a camera pose that frames the mesh.
+    camera_pose = compute_camera_transform(mesh, fov)
 
-    # Position the camera relative to the object's centroid.
-    # Adjust the offset as needed; here, the camera is positioned along negative Y.
-    eye = center + np.array([0, -2 * max_extent, max_extent / 2])
-
-    # Use the revised look_at for a correct camera-to-world transform.
-    camera_pose = look_at(eye, center)
-
-    camera = pyrender.PerspectiveCamera(yfov=np.pi / 3.0)
+    # Create a perspective camera using the specified field-of-view.
+    camera = pyrender.PerspectiveCamera(yfov=fov, znear=0.05, zfar=1000.0)
     scene.add(camera, pose=camera_pose)
 
-    # Add a directional light; if the scene is too bright, try reducing the intensity.
+    # Add a directional light at the same location as the camera for basic illumination.
     light = pyrender.DirectionalLight(color=np.ones(3), intensity=3.0)
     scene.add(light, pose=camera_pose)
 
@@ -219,8 +234,9 @@ def render_mesh_offscreen(mesh, output_image, width=640, height=480):
     color, _ = renderer.render(scene)
     renderer.delete()
 
+    # Save the rendered image.
     imageio.imwrite(output_image, color)
-    print(f"Saved render image to: {output_image}")
+    print("Saved render image to:", output_image)
 
 
 def main():

@@ -1,0 +1,1 @@
+python3 test_parse_usd.py  --usd_file /home/rajsaha/infinigen_outputs_0/omniverse/coarse_multiroom/export_scene.blend/export_scene.usdc --object_path /World/SingleCabinetFactory_2243540__spawn_asset_3512580_
